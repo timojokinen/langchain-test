@@ -1,0 +1,24 @@
+{
+  "name": "langchain-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "tsx index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Timo Jokinen",
+  "license": "ISC",
+  "dependencies": {
+    "@langchain/openai": "^0.0.14",
+    "dotenv": "^16.4.1",
+    "hnswlib-node": "^1.4.2",
+    "langchain": "^0.1.12",
+    "openai": "^4.26.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0"
+  }
+}
