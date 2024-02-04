@@ -5,21 +5,31 @@ import { PromptTemplate } from "@langchain/core/prompts";
 import { HNSWLib } from "@langchain/community/vectorstores/hnswlib";
 import { formatDocumentsAsString } from "langchain/util/document";
 import { CharacterTextSplitter } from "langchain/text_splitter";
-import fs from "fs";
+import { CheerioWebBaseLoader } from "langchain/document_loaders/web/cheerio";
+import readline from "node:readline/promises";
 import {
   RunnableSequence,
   RunnablePassthrough,
 } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+
 const model = new ChatOpenAI({});
 
-const text = fs.readFileSync("raw.txt", "utf-8");
 const splitter = new CharacterTextSplitter({
   separator: ".",
   chunkOverlap: 3,
 });
-const documents = await splitter.createDocuments([text]);
+
+const loader = new CheerioWebBaseLoader(
+  "https://en.wikipedia.org/wiki/Pinniped"
+);
+const data = await loader.load();
+const documents = await splitter.splitDocuments(data);
 
 const vectorStore = await HNSWLib.fromDocuments(
   documents,
@@ -45,11 +55,12 @@ const chain = RunnableSequence.from([
 ]);
 
 export const run = async () => {
-  const stream = await chain.invoke("What do seals eat?");
-
-  for await (const chunk of stream) {
-    process.stdout.write(chunk);
-  }
+  const text = await rl.question(
+    "What do you want to know about pinnipeds? \n"
+  );
+  const stream = await chain.invoke(text);
+  console.log("AI: ", stream);
+  run();
 };
 
 run();
