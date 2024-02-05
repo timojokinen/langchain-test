@@ -18,10 +18,10 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-const model = new ChatOpenAI({});
+const model = new ChatOpenAI({ verbose: false });
 
 const splitter = new CharacterTextSplitter({
-  separator: ".",
+  separator: " ",
   chunkOverlap: 3,
 });
 
@@ -56,11 +56,17 @@ const chain = RunnableSequence.from([
 
 export const run = async () => {
   const text = await rl.question(
-    "What do you want to know about pinnipeds? \n"
+    "AI: What do you want to know about pinnipeds? \n"
   );
-  const stream = await chain.invoke(text);
-  console.log("AI: ", stream);
-  run();
+  const stream = await chain.stream(text);
+  console.log("");
+  process.stdout.write("AI: ");
+  for await (const chunk of stream) {
+    process.stdout.write(chunk);
+  }
+  console.log("\n");
 };
 
-run();
+while (true) {
+  await run();
+}
